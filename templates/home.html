@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+<nav class="nav">
+    <div class="nav-inner">
+      <div class="logo"><span class="logo-mark">R</span>Roster</div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#reports">Reports</a>
+      </div>
+      <div class="nav-cta">
+        <a href="{% url 'signin' %}" class="link-quiet">Sign in</a>
+        <a href="{% url 'signup' %}" class="btn btn-primary">Get started free</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Taking roll, simplified</span>
+        <h1>Every seat, <em>accounted for</em>.</h1>
+        <p class="hero-sub">Roster turns attendance from a five-minute chore into a five-second glance. Teachers check students in with a tap, and admins get the patterns that matter — automatically.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary">Start taking roll</a>
+          <a href="#how" class="btn btn-ghost">See how it works</a>
+        </div>
+        <p class="hero-note">No credit card required · Set up a class in under 2 minutes</p>
+      </div>
+
+      <div class="register-card" aria-hidden="false">
+        <div class="register-head">
+          <span class="register-title">Period 3 — Biology</span>
+          <span class="register-date">Mon, Aug 31</span>
+        </div>
+        <div class="roll" id="roll"></div>
+        <div class="register-foot">
+          <div class="register-stat">
+            <b>27/29</b>
+            <span>Present today</span>
+          </div>
+          <span class="register-pill">93% · on pace</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="stats wrap">
+    <div class="stats-row">
+      <div>
+        <div class="stat-num">6 sec</div>
+        <div class="stat-label">Average time to check in a class</div>
+      </div>
+      <div>
+        <div class="stat-num">1,200+</div>
+        <div class="stat-label">Classrooms using Roster daily</div>
+      </div>
+      <div>
+        <div class="stat-num">98.2%</div>
+        <div class="stat-label">Record accuracy vs. paper logs</div>
+      </div>
+      <div>
+        <div class="stat-num">4.9 / 5</div>
+        <div class="stat-label">Rating from teachers</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">What's inside</span>
+        <h2>Built for the rhythm of a school day</h2>
+        <p>Three tools that cover the whole loop — marking attendance, catching problems early, and turning the numbers into something useful.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-tab">Check-in</span>
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <h3>Tap, scan, or self check-in</h3>
+          <p>Mark a whole class present with one tap, let students scan a QR code as they walk in, or auto-detect attendance from the seating chart.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-tab">Alerts</span>
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/></svg>
+          </div>
+          <h3>Catch patterns before they become problems</h3>
+          <p>Roster flags three missed days in a row, unusual tardiness, or a sudden change — and notifies the right person automatically.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-tab">Reports</span>
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M8 17V9m4 8V5m4 12v-6"/></svg>
+          </div>
+          <h3>Reports admins actually open</h3>
+          <p>Attendance by class, grade, or student, exported the way your district needs it — no more stitching spreadsheets together by hand.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-tight" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">How it works</span>
+        <h2>From bell to record, in three steps</h2>
+      </div>
+      <div class="how-list">
+        <div class="how-item">
+          <span class="how-num">01</span>
+          <div>
+            <h3>Open today's register</h3>
+            <p>Every class roster loads automatically at the start of the period, pulled straight from your school's schedule.</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <span class="how-num">02</span>
+          <div>
+            <h3>Mark the room</h3>
+            <p>Tap through present, late, and absent — or let students self check-in. Changes save instantly, no submit button required.</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <span class="how-num">03</span>
+          <div>
+            <h3>Let Roster do the follow-up</h3>
+            <p>Parents get notified of an absence, admins see it on their dashboard, and the record is ready for reporting — all without extra work.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="reports">
+    <div class="wrap">
+      <div class="heatmap-panel">
+        <div class="heatmap-copy">
+          <span class="kicker" style="color:var(--amber-deep)">Attendance at a glance</span>
+          <h3>See the term, not just the day</h3>
+          <p>A month of attendance rendered as a single glance — darker squares mean a fuller room. Spot dips around holidays, exam weeks, or a specific class before they turn into a trend.</p>
+          <div class="heatmap-legend">
+            <span>Fewer</span>
+            <span class="legend-chip" style="background:#DCD3B7"></span>
+            <span class="legend-chip" style="background:#EFD9A2"></span>
+            <span class="legend-chip" style="background:#E7B44C"></span>
+            <span class="legend-chip" style="background:#C48A2A"></span>
+            <span class="legend-chip" style="background:#8A5F16"></span>
+            <span>More present</span>
+          </div>
+        </div>
+        <div class="heatmap-grid" id="heatmap"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-tight">
+    <div class="wrap quote-panel">
+      <div class="quote-mark">"</div>
+      <p class="q">I used to spend the first five minutes of every class taking roll out loud. Now it's done before the bell finishes ringing.</p>
+      <p class="quote-attr">— MS. OKONKWO-REYES, 9TH GRADE BIOLOGY</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band">
+        <div>
+          <h2>Ready to close the register on paper sheets?</h2>
+          <p>Set up your first class in under two minutes — free for individual teachers.</p>
+        </div>
+        <div class="cta-actions">
+          <a href="#" class="btn btn-primary">Get started free</a>
+          <a href="#" class="btn btn-ghost">Book a demo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock content %}

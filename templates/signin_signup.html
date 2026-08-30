@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in or create an account — Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --chalk: #1E332B;
+    --chalk-2: #25453A;
+    --chalk-3: #2C5245;
+    --paper: #F4EFDF;
+    --paper-2: #FBF8EF;
+    --paper-line: #DCD3B7;
+    --ink: #22302A;
+    --ink-soft: #4A5850;
+    --amber: #E7B44C;
+    --amber-deep: #C48A2A;
+    --clay: #C1543A;
+    --shadow: 0 20px 50px -20px rgba(15, 25, 20, 0.45);
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;min-height:100vh;
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    background:var(--paper);
+  }
+  h1,h2,h3{font-family:var(--font-display);margin:0;}
+  p{margin:0;}
+  a{color:inherit;}
+  img,svg{display:block;}
+
+  :focus-visible{
+    outline:2px solid var(--amber-deep);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .auth-wrap{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:0.95fr 1.05fr;
+  }
+
+  /* ---------- LEFT: chalkboard aside ---------- */
+  .auth-aside{
+    background:var(--chalk);
+    color:var(--paper-2);
+    padding:52px 56px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    position:relative;overflow:hidden;
+  }
+  .auth-aside::before{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg, rgba(244,239,223,0.035) 0px, rgba(244,239,223,0.035) 1px, transparent 1px, transparent 110px);
+    pointer-events:none;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--font-display);font-weight:600;font-size:19px;
+    text-decoration:none;position:relative;
+  }
+  .logo-mark{
+    width:28px;height:28px;border-radius:7px;
+    background:linear-gradient(155deg,var(--amber),var(--amber-deep));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--chalk);font-family:var(--font-mono);font-weight:600;font-size:12px;
+  }
+
+  .aside-copy{position:relative;max-width:34ch;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--amber);margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber);}
+  .aside-copy h1{
+    font-size:clamp(28px,3vw,36px);line-height:1.15;font-weight:600;
+  }
+  .aside-copy p{
+    margin-top:16px;font-size:15.5px;line-height:1.65;color:rgba(244,239,223,0.72);
+  }
+
+  /* mini roll strip (sign in) */
+  .mini-roll{display:flex;margin-top:34px;}
+  .mini-avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(155deg,var(--chalk-3),var(--chalk));
+    border:2.5px solid var(--chalk);
+    margin-left:-10px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:11px;color:var(--paper-2);
+    position:relative;
+  }
+  .mini-avatar:first-child{margin-left:0;}
+  .mini-roll-note{
+    align-self:center;margin-left:14px;
+    font-family:var(--font-mono);font-size:12.5px;color:rgba(244,239,223,0.6);
+  }
+
+  /* checklist (sign up) */
+  .checklist{margin-top:30px;display:flex;flex-direction:column;gap:14px;position:relative;}
+  .checklist-item{display:flex;align-items:flex-start;gap:12px;}
+  .checklist-item svg{flex-shrink:0;margin-top:2px;color:var(--amber);}
+  .checklist-item span{font-size:14.5px;color:rgba(244,239,223,0.78);line-height:1.5;}
+
+  .aside-quote{
+    position:relative;
+    border-top:1px dashed rgba(244,239,223,0.2);
+    padding-top:24px;
+  }
+  .aside-quote p{
+    font-family:var(--font-display);font-style:italic;font-size:16.5px;
+    line-height:1.5;color:var(--paper-2);
+  }
+  .aside-quote span{
+    display:block;margin-top:12px;font-family:var(--font-mono);font-size:12px;
+    color:rgba(244,239,223,0.55);
+  }
+  .aside-quote p.mono{
+    font-family:var(--font-mono);font-size:12.5px;font-style:normal;
+    line-height:1.6;color:rgba(244,239,223,0.55);
+  }
+
+  [data-aside-mode]{display:none;}
+  [data-aside-mode].is-active{display:block;}
+  .checklist[data-aside-mode]{display:none;}
+  .checklist[data-aside-mode].is-active{display:flex;}
+  .mini-roll[data-aside-mode]{display:none;}
+  .mini-roll[data-aside-mode].is-active{display:flex;}
+
+  /* ---------- RIGHT: form panel ---------- */
+  .auth-panel{
+    background:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    padding:56px;
+  }
+  .auth-form{
+    width:100%;max-width:420px;
+  }
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);
+    text-decoration:none;margin-bottom:30px;
+  }
+  .back-link:hover{color:var(--ink);}
+
+  /* tab switcher */
+  .auth-tabs{
+    display:flex;gap:6px;background:var(--paper-line);
+    padding:4px;border-radius:11px;margin-bottom:30px;
+  }
+  .auth-tab{
+    flex:1;text-align:center;padding:10px 12px;border-radius:8px;
+    font-family:var(--font-mono);font-size:13px;font-weight:600;
+    color:var(--ink-soft);background:transparent;border:none;cursor:pointer;
+    transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+  }
+  .auth-tab.is-active{
+    background:var(--paper-2);color:var(--ink);
+    box-shadow:0 2px 8px -2px rgba(34,48,42,0.2);
+  }
+
+  .form-head h2{
+    font-size:28px;font-weight:600;color:var(--ink);
+  }
+  .form-head p{
+    margin-top:10px;font-size:15px;color:var(--ink-soft);line-height:1.5;
+  }
+  .form-head p a{
+    color:var(--amber-deep);font-weight:600;text-decoration:none;
+    border-bottom:1px solid rgba(196,138,42,0.4);
+    background:none;border-left:none;border-right:none;border-top:none;
+    font-family:inherit;font-size:inherit;cursor:pointer;padding:0;
+  }
+  .form-head p a:hover{border-color:var(--amber-deep);}
+
+  /* role selector (sign up only) */
+  .role-select{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+    margin-top:26px;
+  }
+  .role-option{position:relative;}
+  .role-option input{
+    position:absolute;opacity:0;inset:0;cursor:pointer;margin:0;
+  }
+  .role-option label{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:14px 8px;border-radius:10px;
+    border:1.5px solid var(--paper-line);background:var(--paper-2);
+    font-size:13px;font-weight:600;color:var(--ink-soft);
+    cursor:pointer;text-align:center;
+    transition:border-color .18s ease, background .18s ease, color .18s ease;
+  }
+  .role-option label svg{color:var(--ink-soft);transition:color .18s ease;}
+  .role-option input:checked + label{
+    border-color:var(--amber-deep);background:rgba(231,180,76,0.14);color:var(--ink);
+  }
+  .role-option input:checked + label svg{color:var(--amber-deep);}
+  .role-option input:focus-visible + label{
+    outline:2px solid var(--amber-deep);outline-offset:2px;
+  }
+
+  form{margin-top:22px;display:flex;flex-direction:column;gap:16px;}
+  .field-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .field label{
+    display:block;font-size:13px;font-weight:600;color:var(--ink);
+    margin-bottom:7px;font-family:var(--font-mono);letter-spacing:0.01em;
+  }
+  .field input{
+    width:100%;
+    background:var(--paper-2);
+    border:1.5px solid var(--paper-line);
+    border-radius:9px;
+    padding:12px 14px;
+    font-family:var(--font-body);font-size:15px;color:var(--ink);
+    transition:border-color .18s ease, box-shadow .18s ease;
+  }
+  .field input::placeholder{color:#9C9377;}
+  .field input:focus{
+    outline:none;border-color:var(--amber-deep);
+    box-shadow:0 0 0 3px rgba(196,138,42,0.15);
+  }
+  .password-field{position:relative;}
+  .toggle-pw{
+    position:absolute;right:12px;top:38px;
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-soft);padding:4px;
+  }
+  .toggle-pw:hover{color:var(--ink);}
+  .hint{margin-top:6px;font-size:12px;color:var(--ink-soft);}
+
+  .field-row{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:13.5px;
+  }
+  .remember{display:flex;align-items:center;gap:8px;color:var(--ink-soft);}
+  .remember input{width:15px;height:15px;accent-color:var(--amber-deep);}
+  .forgot{color:var(--amber-deep);text-decoration:none;font-weight:600;}
+  .forgot:hover{text-decoration:underline;}
+
+  .terms{
+    display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-soft);line-height:1.5;
+  }
+  .terms input{width:15px;height:15px;margin-top:2px;accent-color:var(--amber-deep);flex-shrink:0;}
+  .terms a{color:var(--amber-deep);font-weight:600;text-decoration:none;}
+  .terms a:hover{text-decoration:underline;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:var(--font-body);font-weight:600;font-size:15px;
+    padding:13px 22px;border-radius:9px;border:1px solid transparent;
+    cursor:pointer;text-decoration:none;width:100%;
+    transition:transform .18s ease, background .2s ease, box-shadow .18s ease;
+  }
+  .btn-primary{
+    background:var(--ink);color:var(--paper-2);
+    margin-top:4px;
+  }
+  .btn-primary:hover{background:#16211C;transform:translateY(-1px);}
+
+  .divider{
+    display:flex;align-items:center;gap:14px;margin:22px 0 18px;
+    font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);
+    letter-spacing:0.06em;text-transform:uppercase;
+  }
+  .divider::before,.divider::after{
+    content:"";flex:1;height:1px;background:var(--paper-line);
+  }
+
+  .sso-row{display:flex;gap:12px;}
+  .btn-sso{
+    flex:1;background:var(--paper-2);border:1.5px solid var(--paper-line);
+    color:var(--ink);font-size:14px;font-weight:600;
+    padding:11px 14px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    cursor:pointer;transition:border-color .18s ease, transform .18s ease;
+    text-decoration:none;
+  }
+  .btn-sso:hover{border-color:#B8AD87;transform:translateY(-1px);}
+
+  .role-note{
+    margin-top:28px;padding:14px 16px;border-radius:10px;
+    background:rgba(231,180,76,0.12);
+    font-size:13px;line-height:1.5;color:var(--ink-soft);
+    border:1px dashed rgba(196,138,42,0.35);
+  }
+  .role-note b{color:var(--ink);}
+
+  /* view switching for the two forms */
+  [data-view]{display:none;}
+  [data-view].is-active{display:block;}
+
+  @media (max-width:920px){
+    .auth-wrap{grid-template-columns:1fr;}
+    .auth-aside{display:none;}
+    .auth-panel{padding:32px 24px;min-height:100vh;}
+  }
+  @media (max-width:480px){
+    .field-pair{grid-template-columns:1fr;}
+    .role-select{grid-template-columns:1fr 1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="auth-wrap">
+
+    <aside class="auth-aside">
+      <a href="{% url 'home' %}" class="logo"><span class="logo-mark">R</span>Roster</a>
+
+      <!-- Sign-in aside content -->
+      <div class="aside-copy {% if mode == 'signin' %}is-active{% endif %}" data-aside-mode="signin">
+        <span class="eyebrow">Welcome back</span>
+        <h1>Pick up right where the last bell left off.</h1>
+        <p>Your classes, your reports, and today's register — all waiting exactly as you left them.</p>
+      </div>
+      <div class="mini-roll" data-aside-mode="signin">
+        <div class="mini-avatar">AR</div>
+        <div class="mini-avatar">LK</div>
+        <div class="mini-avatar">NP</div>
+        <div class="mini-avatar">KT</div>
+        <div class="mini-roll-note">1,200+ classrooms signed in today</div>
+      </div>
+
+      <!-- Sign-up aside content -->
+      <div class="aside-copy {% if mode == 'signup' %}is-active{% endif %}" data-aside-mode="signup">
+        <span class="eyebrow">Get set up</span>
+        <h1>Close the register on paper sheets — for good.</h1>
+        <p>Create your account and have your first class roster live in under two minutes.</p>
+      </div>
+      <div class="checklist" data-aside-mode="signup">
+        <div class="checklist-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>Free for individual teachers, no card required</span>
+        </div>
+        <div class="checklist-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>Import an existing roster from a spreadsheet</span>
+        </div>
+        <div class="checklist-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>Attendance reports ready on day one</span>
+        </div>
+      </div>
+
+      <div class="aside-quote" data-aside-mode="signin">
+        <p>"Now it's done before the bell finishes ringing."</p>
+        <span>— MS. OKONKWO-REYES, 9TH GRADE BIOLOGY</span>
+      </div>
+      <div class="aside-quote" data-aside-mode="signup">
+        <p class="mono">1,200+ CLASSROOMS · 98.2% RECORD ACCURACY · 4.9/5 FROM TEACHERS</p>
+      </div>
+    </aside>
+
+    <div class="auth-panel">
+      <div class="auth-form">
+        <a href="{% url 'home' %}" class="back-link">← Back to home</a>
+
+        <div class="auth-tabs" role="tablist" aria-label="Sign in or create account">
+        <button class="auth-tab {% if mode == 'signin' %}is-active{% endif %}" id="tab-signin" type="button" role="tab" aria-selected="{% if mode == 'signin' %}true{% else %}false{% endif %}" aria-controls="view-signin">Sign in</button>
+        <button class="auth-tab {% if mode == 'signup' %}is-active{% endif %}" id="tab-signup" type="button" role="tab" aria-selected="{% if mode == 'signup' %}true{% else %}false{% endif %}" aria-controls="view-signup">Create account</button> 
+        </div>
+
+        <!-- ============ SIGN IN VIEW ============ -->
+        <div data-view="signin" id="view-signin" class="{% if mode == 'signin' %}is-active{% endif %}">
+          <div class="form-head">
+            <h2>Sign in</h2>
+            <p>New to Roster? <a data-switch-to="signup">Create a free account</a></p>
+          </div>
+
+          <form id="signinForm">
+            <div class="field">
+              <label for="si-email">Email address</label>
+              <input type="email" id="si-email" name="email" placeholder="you@yourschool.edu" required autocomplete="email">
+            </div>
+
+            <div class="field password-field">
+              <label for="si-password">Password</label>
+              <input type="password" id="si-password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="toggle-pw" data-toggle-target="si-password" aria-label="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+
+            <div class="field-row">
+              <label class="remember"><input type="checkbox" name="remember"> Keep me signed in</label>
+              <a href="#" class="forgot">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign in</button>
+          </form>
+
+          <div class="divider">or continue with</div>
+
+          <div class="sso-row">
+            <a href="#" class="btn-sso">
+              <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75Z"/></svg>
+              Google
+            </a>
+            <a href="#" class="btn-sso">
+              <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#F25022" d="M1 1h10v10H1z"/><path fill="#7FBA00" d="M13 1h10v10H13z"/><path fill="#00A4EF" d="M1 13h10v10H1z"/><path fill="#FFB900" d="M13 13h10v10H13z"/></svg>
+              Microsoft
+            </a>
+          </div>
+
+          <div class="role-note">
+            <b>Signing in as a student or parent?</b> Ask your school's administrator for the invite link — Roster accounts are created through your school, not self-registered.
+          </div>
+        </div>
+
+        <!-- ============ SIGN UP VIEW ============ -->
+        <div data-view="signup" id="view-signup" class="{% if mode == 'signup' %}is-active{% endif %}">
+          <div class="form-head">
+            <h2>Create your account</h2>
+            <p>Already have one? <a data-switch-to="signin">Sign in instead</a></p>
+          </div>
+
+          <!-- <fieldset style="border:none;padding:0;margin:0;">
+            <legend style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:0;padding:0;">I am a...</legend>
+            <div class="role-select">
+              <div class="role-option">
+                <input type="radio" name="role" id="role-teacher" checked>
+                <label for="role-teacher">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>
+                  Teacher
+                </label>
+              </div>
+              <div class="role-option">
+                <input type="radio" name="role" id="role-admin">
+                <label for="role-admin">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-6h6v6M9 12h.01M15 12h.01M9 8h.01M15 8h.01"/></svg>
+                  Admin
+                </label>
+              </div>
+              <div class="role-option">
+                <input type="radio" name="role" id="role-parent">
+                <label for="role-parent">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  Parent
+                </label>
+              </div>
+            </div>
+          </fieldset> -->
+
+          <form id="signupForm">
+            <div class="field-pair">
+              <div class="field">
+                <label for="su-fname">First name</label>
+                <input type="text" id="su-fname" name="fname" placeholder="Amara" required autocomplete="given-name">
+              </div>
+              <div class="field">
+                <label for="su-lname">Last name</label>
+                <input type="text" id="su-lname" name="lname" placeholder="Okonkwo" required autocomplete="family-name">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="su-email">School email</label>
+              <input type="email" id="su-email" name="email" placeholder="you@yourschool.edu" required autocomplete="email">
+            </div>
+
+            <div class="field">
+              <label for="su-school">School or district</label>
+              <input type="text" id="su-school" name="school" placeholder="Lakeside Middle School" required autocomplete="organization">
+            </div>
+
+            <div class="field password-field">
+              <label for="su-password">Password</label>
+              <input type="password" id="su-password" name="password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
+              <button type="button" class="toggle-pw" data-toggle-target="su-password" aria-label="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <p class="hint">Use 8+ characters with a mix of letters and numbers.</p>
+            </div>
+
+            <label class="terms">
+              <input type="checkbox" required>
+              <span>I agree to Roster's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</span>
+            </label>
+
+            <button type="submit" class="btn btn-primary">Create account</button>
+          </form>
+
+          <div class="divider">or sign up with</div>
+
+          <div class="sso-row">
+            <a href="#" class="btn-sso">
+              <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.11A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.39l4-3.11Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75Z"/></svg>
+              Google
+            </a>
+            <a href="#" class="btn-sso">
+              <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#F25022" d="M1 1h10v10H1z"/><path fill="#7FBA00" d="M13 1h10v10H13z"/><path fill="#00A4EF" d="M1 13h10v10H1z"/><path fill="#FFB900" d="M13 13h10v10H13z"/></svg>
+              Microsoft
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  function setMode(mode){
+    // views
+    document.querySelectorAll('[data-view]').forEach(el => {
+      el.classList.toggle('is-active', el.getAttribute('data-view') === mode);
+    });
+    // aside content
+    document.querySelectorAll('[data-aside-mode]').forEach(el => {
+      el.classList.toggle('is-active', el.getAttribute('data-aside-mode') === mode);
+    });
+    // tabs
+    document.getElementById('tab-signin').classList.toggle('is-active', mode === 'signin');
+    document.getElementById('tab-signin').setAttribute('aria-selected', mode === 'signin');
+    document.getElementById('tab-signup').classList.toggle('is-active', mode === 'signup');
+    document.getElementById('tab-signup').setAttribute('aria-selected', mode === 'signup');
+  }
+
+  document.getElementById('tab-signin').addEventListener('click', () => setMode('signin'));
+  document.getElementById('tab-signup').addEventListener('click', () => setMode('signup'));
+  document.querySelectorAll('[data-switch-to]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      setMode(link.getAttribute('data-switch-to'));
+    });
+  });
+
+  // password show/hide (works for both forms)
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const input = document.getElementById(this.getAttribute('data-toggle-target'));
+      const isText = input.type === 'text';
+      input.type = isText ? 'password' : 'text';
+      this.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
+    });
+  });
+
+  document.getElementById('signinForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    // Hook up to your auth endpoint here.
+  });
+  document.getElementById('signupForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    // Hook up to your account-creation endpoint here.
+  });
+
+  // set initial aside state
+  setMode('{{ mode|default:"signin" }}');
+</script>
+
+</body>
+</html>
