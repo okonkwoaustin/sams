@@ -1,0 +1,138 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Take Attendance{% endblock page_title %}
+{% block page_heading %}{{ school_class.get_name_display }}{% endblock page_heading %}
+{% block page_subheading %}<p>{{ term }} · {{ today|date:"l, F j, Y" }}</p>{% endblock page_subheading %}
+
+{% block page_style %}
+<style>
+  .register-toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .count-summary{
+    display:flex; gap:18px; font-family:var(--font-mono); font-size:13px; color:var(--ink-soft);
+  }
+  .count-summary b{ color:var(--ink); }
+  .mark-all{ display:flex; gap:8px; }
+
+  .roster-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; border-bottom:1px solid var(--paper-line);
+  }
+  .roster-row:last-child{ border-bottom:none; }
+  .roster-name{ display:flex; align-items:center; gap:12px; }
+  .roster-name .avatar{
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(155deg,var(--chalk-3),var(--chalk)); color:var(--paper-2);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:12px;
+  }
+  .roster-name .details b{ display:block; font-size:14.5px; color:var(--ink); }
+  .roster-name .details span{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); }
+
+  .status-toggle{ display:flex; gap:6px; }
+  .status-toggle input{ display:none; }
+  .status-toggle label{
+    font-family:var(--font-mono); font-size:12px; font-weight:600;
+    padding:8px 13px; border-radius:8px; border:1.5px solid var(--paper-line);
+    color:var(--ink-soft); cursor:pointer; transition: all .15s ease;
+  }
+  .status-toggle input:checked + label.opt-present{ background:rgba(63,154,110,0.15); border-color:#3F9A6E; color:#2B7350; }
+  .status-toggle input:checked + label.opt-absent{ background:rgba(193,84,58,0.15); border-color:var(--clay); color:var(--clay); }
+  .status-toggle input:checked + label.opt-late{ background:rgba(231,180,76,0.18); border-color:var(--amber-deep); color:var(--amber-deep); }
+  .status-toggle input:checked + label.opt-excused{ background:rgba(74,88,80,0.12); border-color:var(--ink-soft); color:var(--ink-soft); }
+
+  .save-bar{
+    position:sticky; bottom:0; background:var(--paper-2); border-top:1px solid var(--paper-line);
+    padding:16px 18px; display:flex; justify-content:flex-end; gap:12px; margin-top:4px;
+    border-radius:0 0 14px 14px;
+  }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<div class="register-toolbar">
+  <div class="count-summary">
+    <span><b id="count-present">0</b> present</span>
+    <span><b id="count-absent">0</b> absent</span>
+    <span><b id="count-late">0</b> late</span>
+    <span><b id="count-excused">0</b> excused</span>
+  </div>
+  <div class="mark-all">
+    <button type="button" class="btn btn-ghost btn-sm" data-mark-all="Present">Mark all present</button>
+  </div>
+</div>
+
+<form method="post" id="attendance-form">
+  {% csrf_token %}
+  <div class="card" style="padding:0;">
+    {% if enrollments %}
+      {% for enrollment in enrollments %}
+      <div class="roster-row">
+        <div class="roster-name">
+          <span class="avatar">{{ enrollment.student.first_name|slice:":1" }}{{ enrollment.student.last_name|slice:":1" }}</span>
+          <div class="details">
+            <b>{{ enrollment.student.first_name }} {{ enrollment.student.last_name }}</b>
+            <span>{{ enrollment.student.admission_number }}</span>
+          </div>
+        </div>
+        <div class="status-toggle" data-row>
+          <input type="radio" name="status_{{ enrollment.id }}" id="present_{{ enrollment.id }}" value="Present" {% if enrollment.current_status == "Present" %}checked{% endif %}>
+          <label class="opt-present" for="present_{{ enrollment.id }}">Present</label>
+
+          <input type="radio" name="status_{{ enrollment.id }}" id="absent_{{ enrollment.id }}" value="Absent" {% if enrollment.current_status == "Absent" %}checked{% endif %}>
+          <label class="opt-absent" for="absent_{{ enrollment.id }}">Absent</label>
+
+          <input type="radio" name="status_{{ enrollment.id }}" id="late_{{ enrollment.id }}" value="Late" {% if enrollment.current_status == "Late" %}checked{% endif %}>
+          <label class="opt-late" for="late_{{ enrollment.id }}">Late</label>
+
+          <input type="radio" name="status_{{ enrollment.id }}" id="excused_{{ enrollment.id }}" value="Excused" {% if enrollment.current_status == "Excused" %}checked{% endif %}>
+          <label class="opt-excused" for="excused_{{ enrollment.id }}">Excused</label>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <h3>No students enrolled in this class</h3>
+        <p>Enroll students first to take attendance.</p>
+      </div>
+    {% endif %}
+
+    {% if enrollments %}
+    <div class="save-bar">
+      <a href="{% url 'class_detail' school_class.id %}" class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save register</button>
+    </div>
+    {% endif %}
+  </div>
+</form>
+
+<script>
+  function updateCounts(){
+    const counts = {Present:0, Absent:0, Late:0, Excused:0};
+    document.querySelectorAll('[data-row] input:checked').forEach(el => {
+      if (counts[el.value] !== undefined) counts[el.value]++;
+    });
+    document.getElementById('count-present').textContent = counts.Present;
+    document.getElementById('count-absent').textContent = counts.Absent;
+    document.getElementById('count-late').textContent = counts.Late;
+    document.getElementById('count-excused').textContent = counts.Excused;
+  }
+  document.querySelectorAll('[data-row] input').forEach(el => el.addEventListener('change', updateCounts));
+
+  document.querySelectorAll('[data-mark-all]').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const value = this.getAttribute('data-mark-all');
+      document.querySelectorAll('[data-row]').forEach(row => {
+        const target = row.querySelector('input[value="' + value + '"]');
+        if (target) target.checked = true;
+      });
+      updateCounts();
+    });
+  });
+
+  updateCounts();
+</script>
+
+{% endblock page_content %}

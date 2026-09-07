@@ -1,0 +1,95 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}{{ student.first_name }} {{ student.last_name }}{% endblock page_title %}
+{% block page_heading %}{{ student.first_name }} {{ student.last_name }}{% endblock page_heading %}
+{% block page_subheading %}<p class="admission-tag">Admission No. {{ student.admission_number }}</p>{% endblock page_subheading %}
+
+{% block page_actions %}
+<a href="{% url 'student_edit' student.id %}" class="btn btn-ghost btn-sm">Edit</a>
+{% endblock page_actions %}
+
+{% block page_style %}
+<style>
+  .admission-tag{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); margin-top:3px; }
+  .profile-grid{ display:grid; grid-template-columns: 1fr 1.4fr; gap:22px; align-items:start; }
+  .info-row{ display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px dashed var(--paper-line); font-size:14px; }
+  .info-row:last-child{ border-bottom:none; }
+  .info-row .label{ color:var(--ink-soft); font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.04em; }
+  .info-row .value{ color:var(--ink); font-weight:500; text-align:right; }
+  .card h2{ font-size:16px; font-weight:600; color:var(--ink); margin-bottom:14px; }
+  .parent-chip{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:9px;
+    background:var(--paper); border:1px solid var(--paper-line); font-size:13.5px; margin:0 8px 8px 0;
+  }
+  @media (max-width: 900px){ .profile-grid{ grid-template-columns:1fr; } }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<div class="profile-grid">
+
+  <div class="card">
+    <h2>Profile</h2>
+    <div class="info-row"><span class="label">Full name</span><span class="value">{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}</span></div>
+    <div class="info-row"><span class="label">Gender</span><span class="value">{{ student.gender }}</span></div>
+    <div class="info-row"><span class="label">Date of birth</span><span class="value">{{ student.date_of_birth|date:"F j, Y" }}</span></div>
+    <div class="info-row"><span class="label">Address</span><span class="value">{{ student.address|default:"—" }}</span></div>
+    <div class="info-row"><span class="label">Registered</span><span class="value">{{ student.date_of_registration|date:"F j, Y"|default:"—" }}</span></div>
+
+    <h2 style="margin-top:22px;">Parents / guardians</h2>
+    {% if student.parent_set.all %}
+      {% for parent in student.parent_set.all %}
+        <span class="parent-chip">{{ parent.full_name }}</span>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--ink-soft); font-size:13.5px;">No parent or guardian on file.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Enrollment &amp; attendance</h2>
+    {% if enrollments %}
+    <table class="data-table">
+      <thead><tr><th>Session</th><th>Class</th><th>Enrolled</th></tr></thead>
+      <tbody>
+        {% for enrollment in enrollments %}
+        <tr>
+          <td>{{ enrollment.session }}</td>
+          <td>{{ enrollment.school_class }}</td>
+          <td>{{ enrollment.date_enrolled|date:"M j, Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="color:var(--ink-soft); font-size:13.5px;">Not enrolled in any class yet.</p>
+    {% endif %}
+
+    <h2 style="margin-top:24px;">Recent attendance</h2>
+    {% if attendance_records %}
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Status</th><th>Remarks</th></tr></thead>
+      <tbody>
+        {% for rec in attendance_records %}
+        <tr>
+          <td>{{ rec.attendance.date|date:"D, M j" }}</td>
+          <td>
+            {% if rec.status == "Present" %}<span class="badge badge-present">Present</span>
+            {% elif rec.status == "Absent" %}<span class="badge badge-absent">Absent</span>
+            {% elif rec.status == "Late" %}<span class="badge badge-late">Late</span>
+            {% else %}<span class="badge badge-excused">Excused</span>{% endif %}
+          </td>
+          <td>{{ rec.remarks|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="color:var(--ink-soft); font-size:13.5px;">No attendance recorded yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock page_content %}

@@ -1,0 +1,60 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Classes{% endblock page_title %}
+{% block page_heading %}Classes{% endblock page_heading %}
+{% block page_subheading %}<p>{{ classes|length }} classes this session</p>{% endblock page_subheading %}
+
+{% block page_actions %}
+<a href="{% url 'class_add' %}" class="btn btn-primary btn-sm">+ Add class</a>
+{% endblock page_actions %}
+
+{% block page_style %}
+<style>
+  .class-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .class-card{
+    background:var(--paper-2); border:1px solid var(--paper-line); border-radius:14px;
+    padding:20px 22px; display:flex; flex-direction:column; gap:6px;
+  }
+  .class-card .name{ font-family:var(--font-display); font-size:19px; font-weight:600; color:var(--ink); }
+  .class-card .nickname{ font-family:var(--font-mono); font-size:12px; color:var(--amber-deep); }
+  .class-card .meta-row{
+    display:flex; justify-content:space-between; margin-top:12px; padding-top:12px;
+    border-top:1px dashed var(--paper-line); font-size:13px; color:var(--ink-soft);
+  }
+  .class-card .actions{ display:flex; gap:8px; margin-top:14px; }
+  @media (max-width: 1100px){ .class-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width: 700px){ .class-grid{ grid-template-columns:1fr; } }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+{% if classes %}
+<div class="class-grid">
+  {% for entry in classes %}
+  <div class="class-card">
+    <div class="name">{{ entry.school_class.get_name_display }}</div>
+    {% if entry.school_class.nickname %}<div class="nickname">{{ entry.school_class.nickname }}</div>{% endif %}
+
+    <div class="meta-row">
+      <span>{{ entry.student_count }} students</span>
+      <span>{{ entry.teacher_name|default:"No teacher assigned" }}</span>
+    </div>
+
+    <div class="actions">
+      <a href="{% url 'class_detail' entry.school_class.id %}" class="btn btn-ghost btn-sm">View roster</a>
+      <a href="{% url 'attendance_take' entry.school_class.id %}" class="btn btn-primary btn-sm">Take attendance</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <h3>No classes yet</h3>
+    <p>Add a class to start building your roster.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock page_content %}

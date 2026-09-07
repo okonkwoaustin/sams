@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}{% block page_title %}Dashboard{% endblock page_title %} · Roster{% endblock title %}
+
+{% block extra_head %}
+<style>
+  body{ background: var(--paper); color: var(--ink); }
+
+  .app-shell{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .app-sidebar{
+    background: var(--chalk);
+    color: var(--paper-2);
+    padding: 28px 20px;
+    display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh;
+  }
+  .app-sidebar .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-display); font-weight:600; font-size:19px;
+    text-decoration:none; color:var(--paper-2);
+    margin-bottom:34px;
+  }
+  .app-sidebar .logo-mark{
+    width:28px; height:28px; border-radius:7px;
+    background:linear-gradient(155deg,var(--amber),var(--amber-deep));
+    display:flex; align-items:center; justify-content:center;
+    color:var(--chalk); font-family:var(--font-mono); font-weight:600; font-size:12px;
+  }
+  .nav-group{ margin-bottom: 22px; }
+  .nav-group-label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+    color:rgba(244,239,223,0.45); padding: 0 10px 8px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:11px;
+    padding:10px 12px; border-radius:9px;
+    color:rgba(244,239,223,0.78); text-decoration:none; font-size:14.5px;
+    margin-bottom:2px; transition: background .16s ease, color .16s ease;
+  }
+  .nav-item svg{ flex-shrink:0; width:17px; height:17px; }
+  .nav-item:hover{ background: rgba(244,239,223,0.07); color: var(--paper-2); }
+  .nav-item.is-active{ background: rgba(231,180,76,0.16); color: var(--amber); }
+  .sidebar-foot{
+    margin-top:auto; padding-top:18px; border-top:1px dashed rgba(244,239,223,0.15);
+  }
+
+  /* ---------- MAIN COLUMN ---------- */
+  .app-main{ display:flex; flex-direction:column; min-width:0; }
+  .app-topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 20px 32px; border-bottom:1px solid var(--paper-line);
+    background: var(--paper-2);
+  }
+  .topbar-title h1{
+    font-size:22px; font-weight:600; color:var(--ink);
+  }
+  .topbar-title p{ margin-top:3px; font-size:13.5px; color:var(--ink-soft); }
+  .topbar-user{ display:flex; align-items:center; gap:12px; }
+  .user-chip{
+    display:flex; align-items:center; gap:9px;
+    font-size:13.5px; color:var(--ink-soft);
+  }
+  .user-avatar{
+    width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(155deg,var(--chalk-3),var(--chalk));
+    color:var(--paper-2); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:12px; font-weight:600;
+  }
+  .btn-signout{
+    font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft);
+    text-decoration:none; border:1px solid var(--paper-line); border-radius:7px;
+    padding:7px 12px; transition: border-color .16s ease, color .16s ease;
+  }
+  .btn-signout:hover{ border-color:var(--clay); color:var(--clay); }
+
+  .app-content{ padding: 28px 32px 48px; flex:1; }
+
+  /* ---------- SHARED UI BITS used across pages ---------- */
+  .card{
+    background:var(--paper-2); border:1px solid var(--paper-line);
+    border-radius:14px; padding:22px 24px;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:var(--font-body); font-weight:600; font-size:14.5px;
+    padding:10px 18px; border-radius:8px; border:1px solid transparent;
+    cursor:pointer; text-decoration:none; transition: transform .16s ease, background .16s ease;
+  }
+  .btn-primary{ background:var(--ink); color:var(--paper-2); }
+  .btn-primary:hover{ background:#16211C; transform:translateY(-1px); }
+  .btn-ghost{ background:transparent; border-color:var(--paper-line); color:var(--ink); }
+  .btn-ghost:hover{ border-color:#B8AD87; }
+  .btn-sm{ padding:7px 13px; font-size:13px; }
+
+  table.data-table{ width:100%; border-collapse:collapse; }
+  table.data-table th{
+    text-align:left; font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.05em;
+    text-transform:uppercase; color:var(--ink-soft); padding:10px 14px; border-bottom:1.5px solid var(--paper-line);
+  }
+  table.data-table td{
+    padding:13px 14px; border-bottom:1px solid var(--paper-line); font-size:14.5px; color:var(--ink);
+  }
+  table.data-table tr:hover td{ background: rgba(231,180,76,0.06); }
+
+  .badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:var(--font-mono); font-size:11.5px; font-weight:600;
+    padding:4px 10px; border-radius:20px;
+  }
+  .badge-present{ background:rgba(63,154,110,0.15); color:#2B7350; }
+  .badge-absent{ background:rgba(193,84,58,0.15); color:var(--clay); }
+  .badge-late{ background:rgba(231,180,76,0.18); color:var(--amber-deep); }
+  .badge-excused{ background:rgba(74,88,80,0.12); color:var(--ink-soft); }
+
+  .empty-state{
+    text-align:center; padding:50px 20px; color:var(--ink-soft);
+  }
+  .empty-state h3{ color:var(--ink); font-size:18px; margin-bottom:8px; }
+
+  @media (max-width: 900px){
+    .app-shell{ grid-template-columns: 1fr; }
+    .app-sidebar{ display:none; }
+  }
+
+  {% block page_style %}{% endblock page_style %}
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="app-shell">
+
+  <aside class="app-sidebar">
+    <a href="{% url 'home' %}" class="logo"><span class="logo-mark">R</span>Roster</a>
+
+    <div class="nav-group">
+      <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">School</div>
+      <a href="{% url 'student_list' %}" class="nav-item {% if 'student' in request.resolver_match.url_name %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>
+        Students
+      </a>
+      <a href="{% url 'class_list' %}" class="nav-item {% if 'class' in request.resolver_match.url_name %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+        Classes
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Attendance</div>
+      <a href="{% url 'attendance_history' %}" class="nav-item {% if 'attendance' in request.resolver_match.url_name %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Take &amp; review
+      </a>
+    </div>
+
+    <div class="sidebar-foot">
+      <a href="{% url 'account_logout' %}" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+        Sign out
+      </a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="app-topbar">
+      <div class="topbar-title">
+        <h1>{% block page_heading %}{% endblock page_heading %}</h1>
+        {% block page_subheading %}{% endblock page_subheading %}
+      </div>
+      <div class="topbar-user">
+        {% block page_actions %}{% endblock page_actions %}
+        <div class="user-chip">
+          <span class="user-avatar">{{ request.user.first_name|default:request.user.username|slice:":1"|upper }}</span>
+          {{ request.user.first_name|default:request.user.username }}
+        </div>
+        <a href="{% url 'account_logout' %}" class="btn-signout">Sign out</a>
+      </div>
+    </header>
+
+    <main class="app-content">
+      {% block page_content %}{% endblock page_content %}
+    </main>
+  </div>
+
+</div>
+{% endblock content %}

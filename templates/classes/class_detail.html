@@ -1,0 +1,63 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}{{ school_class.get_name_display }}{% endblock page_title %}
+{% block page_heading %}{{ school_class.get_name_display }}{% if school_class.nickname %} · {{ school_class.nickname }}{% endif %}{% endblock page_heading %}
+{% block page_subheading %}<p>{{ enrollments|length }} students enrolled{% if class_teacher %} · Taught by {{ class_teacher.teacher.get_full_name|default:class_teacher.teacher.username }}{% endif %}</p>{% endblock page_subheading %}
+
+{% block page_actions %}
+<a href="{% url 'attendance_take' school_class.id %}" class="btn btn-primary btn-sm">Take attendance</a>
+{% endblock page_actions %}
+
+{% block page_style %}
+<style>
+  .name-cell{ display:flex; align-items:center; gap:10px; }
+  .name-cell .avatar{
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(155deg,var(--chalk-3),var(--chalk)); color:var(--paper-2);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11.5px;
+  }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<div class="card" style="padding:0; overflow:hidden;">
+  {% if enrollments %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Admission No.</th>
+        <th>Gender</th>
+        <th>Enrolled</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for enrollment in enrollments %}
+      <tr>
+        <td>
+          <div class="name-cell">
+            <span class="avatar">{{ enrollment.student.first_name|slice:":1" }}{{ enrollment.student.last_name|slice:":1" }}</span>
+            {{ enrollment.student.first_name }} {{ enrollment.student.last_name }}
+          </div>
+        </td>
+        <td style="font-family:var(--font-mono); font-size:12.5px;">{{ enrollment.student.admission_number }}</td>
+        <td>{{ enrollment.student.gender }}</td>
+        <td>{{ enrollment.date_enrolled|date:"M j, Y" }}</td>
+        <td style="text-align:right;">
+          <a href="{% url 'student_detail' enrollment.student.id %}" class="btn btn-ghost btn-sm">View</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No students enrolled yet</h3>
+    <p>Enroll students into this class to start taking attendance.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock page_content %}

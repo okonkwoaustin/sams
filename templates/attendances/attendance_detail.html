@@ -1,0 +1,49 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Attendance · {{ attendance.school_class }}{% endblock page_title %}
+{% block page_heading %}{{ attendance.school_class }}{% endblock page_heading %}
+{% block page_subheading %}<p>{{ attendance.date|date:"l, F j, Y · g:i A" }} · Taken by {{ attendance.teacher.get_full_name|default:attendance.teacher.username }}</p>{% endblock page_subheading %}
+
+{% block page_actions %}
+<a href="{% url 'attendance_take' attendance.school_class.id %}" class="btn btn-ghost btn-sm">Edit today's register</a>
+{% endblock page_actions %}
+
+{% block page_content %}
+
+<div class="card" style="padding:0; overflow:hidden;">
+  {% if records %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Admission No.</th>
+        <th>Status</th>
+        <th>Remarks</th>
+        <th>Marked at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in records %}
+      <tr>
+        <td>{{ record.student_enrollment.student.first_name }} {{ record.student_enrollment.student.last_name }}</td>
+        <td style="font-family:var(--font-mono); font-size:12.5px;">{{ record.student_enrollment.student.admission_number }}</td>
+        <td>
+          {% if record.status == "Present" %}<span class="badge badge-present">Present</span>
+          {% elif record.status == "Absent" %}<span class="badge badge-absent">Absent</span>
+          {% elif record.status == "Late" %}<span class="badge badge-late">Late</span>
+          {% else %}<span class="badge badge-excused">Excused</span>{% endif %}
+        </td>
+        <td>{{ record.remarks|default:"—" }}</td>
+        <td style="font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft);">{{ record.time_stamp|time:"g:i A" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No records for this register</h3>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock page_content %}

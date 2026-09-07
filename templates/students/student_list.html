@@ -1,0 +1,91 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Students{% endblock page_title %}
+{% block page_heading %}Students{% endblock page_heading %}
+{% block page_subheading %}<p>{{ students.paginator.count|default:students|length }} students on record</p>{% endblock page_subheading %}
+
+{% block page_actions %}
+<a href="{% url 'student_add' %}" class="btn btn-primary btn-sm">+ Add student</a>
+{% endblock page_actions %}
+
+{% block page_style %}
+<style>
+  .search-row{ display:flex; gap:12px; margin-bottom:20px; }
+  .search-row input{
+    flex:1; max-width:340px; background:var(--paper-2); border:1.5px solid var(--paper-line);
+    border-radius:9px; padding:10px 14px; font-family:var(--font-body); font-size:14.5px; color:var(--ink);
+  }
+  .search-row input:focus{ outline:none; border-color:var(--amber-deep); }
+  .name-cell{ display:flex; align-items:center; gap:10px; }
+  .name-cell .avatar{
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(155deg,var(--chalk-3),var(--chalk)); color:var(--paper-2);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11.5px;
+  }
+  .admission{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); }
+  .pagination{ display:flex; gap:8px; margin-top:20px; justify-content:center; }
+  .pagination a, .pagination span{
+    font-family:var(--font-mono); font-size:13px; padding:6px 11px; border-radius:7px;
+    border:1px solid var(--paper-line); text-decoration:none; color:var(--ink);
+  }
+  .pagination .current{ background:var(--ink); color:var(--paper-2); border-color:var(--ink); }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<form class="search-row" method="get">
+  <input type="text" name="q" placeholder="Search by name or admission number…" value="{{ request.GET.q }}">
+  <button type="submit" class="btn btn-ghost btn-sm">Search</button>
+</form>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  {% if students %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Admission No.</th>
+        <th>Class</th>
+        <th>Gender</th>
+        <th>Registered</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr>
+        <td>
+          <div class="name-cell">
+            <span class="avatar">{{ student.first_name|slice:":1" }}{{ student.last_name|slice:":1" }}</span>
+            {{ student.first_name }} {{ student.last_name }}
+          </div>
+        </td>
+        <td class="admission">{{ student.admission_number }}</td>
+        <td>{{ student.current_class|default:"—" }}</td>
+        <td>{{ student.gender }}</td>
+        <td>{{ student.date_of_registration|date:"M Y"|default:"—" }}</td>
+        <td style="text-align:right;">
+          <a href="{% url 'student_detail' student.id %}" class="btn btn-ghost btn-sm">View</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No students found</h3>
+    <p>Try a different search, or add your first student to get started.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% if students.has_other_pages %}
+<div class="pagination">
+  {% if students.has_previous %}<a href="?page={{ students.previous_page_number }}">← Prev</a>{% endif %}
+  <span class="current">Page {{ students.number }} of {{ students.paginator.num_pages }}</span>
+  {% if students.has_next %}<a href="?page={{ students.next_page_number }}">Next →</a>{% endif %}
+</div>
+{% endif %}
+
+{% endblock page_content %}

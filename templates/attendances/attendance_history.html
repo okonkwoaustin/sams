@@ -1,0 +1,69 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Attendance History{% endblock page_title %}
+{% block page_heading %}Attendance history{% endblock page_heading %}
+{% block page_subheading %}<p>Every register taken across your classes</p>{% endblock page_subheading %}
+
+{% block page_style %}
+<style>
+  .filter-row{ display:flex; gap:10px; margin-bottom:18px; }
+  .filter-row select{
+    background:var(--paper-2); border:1.5px solid var(--paper-line); border-radius:9px;
+    padding:9px 12px; font-family:var(--font-body); font-size:14px; color:var(--ink);
+  }
+  .rate-bar{
+    width:80px; height:6px; border-radius:4px; background:var(--paper-line); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px;
+  }
+  .rate-bar span{ display:block; height:100%; background:#3F9A6E; }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<form class="filter-row" method="get">
+  <select name="class" onchange="this.form.submit()">
+    <option value="">All classes</option>
+    {% for c in all_classes %}
+      <option value="{{ c.id }}" {% if request.GET.class == c.id|stringformat:"s" %}selected{% endif %}>{{ c.get_name_display }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  {% if attendances %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Class</th>
+        <th>Term</th>
+        <th>Attendance rate</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attendance in attendances %}
+      <tr>
+        <td>{{ attendance.date|date:"D, M j, Y · g:i A" }}</td>
+        <td>{{ attendance.school_class }}</td>
+        <td>{{ attendance.term }}</td>
+        <td>
+          <span class="rate-bar"><span style="width:{{ attendance.present_rate|default:'0' }}%;"></span></span>
+          {{ attendance.present_rate|default:"0" }}%
+        </td>
+        <td style="text-align:right;">
+          <a href="{% url 'attendance_detail' attendance.id %}" class="btn btn-ghost btn-sm">View</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No registers taken yet</h3>
+    <p>Once you take attendance for a class, it'll show up here.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock page_content %}
