@@ -1,0 +1,98 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Dashboard{% endblock page_title %}
+{% block page_heading %}Good to see you{% endblock page_heading %}
+{% block page_subheading %}<p>Here's what's happening across your classes today.</p>{% endblock page_subheading %}
+
+{% block page_style %}
+<style>
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:28px; }
+  .stat-card{ background:var(--paper-2); border:1px solid var(--paper-line); border-radius:14px; padding:20px 22px; }
+  .stat-card .num{ font-family:var(--font-mono); font-size:28px; font-weight:600; color:var(--ink); }
+  .stat-card .label{ margin-top:4px; font-size:13px; color:var(--ink-soft); }
+
+  .dash-grid{ display:grid; grid-template-columns: 1.3fr 1fr; gap:22px; align-items:start; }
+
+  .class-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 0; border-bottom:1px dashed var(--paper-line);
+  }
+  .class-row:last-child{ border-bottom:none; }
+  .class-row .name{ font-weight:600; color:var(--ink); }
+  .class-row .meta{ font-size:12.5px; color:var(--ink-soft); font-family:var(--font-mono); }
+
+  .card h2{ font-size:17px; font-weight:600; color:var(--ink); margin-bottom:16px; }
+
+  @media (max-width: 900px){
+    .stat-grid{ grid-template-columns:repeat(2,1fr); }
+    .dash-grid{ grid-template-columns:1fr; }
+  }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="num">{{ total_students|default:"0" }}</div>
+    <div class="label">Total students</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ total_classes|default:"0" }}</div>
+    <div class="label">Classes this session</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ today_attendance_rate|default:"—" }}%</div>
+    <div class="label">Present today</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ current_term|default:"—" }}</div>
+    <div class="label">Current term</div>
+  </div>
+</div>
+
+<div class="dash-grid">
+
+  <div class="card">
+    <h2>Your classes</h2>
+    {% if my_classes %}
+      {% for entry in my_classes %}
+        <div class="class-row">
+          <div>
+            <div class="name">{{ entry.school_class.get_name_display }}{% if entry.school_class.nickname %} · {{ entry.school_class.nickname }}{% endif %}</div>
+            <div class="meta">{{ entry.student_count }} students</div>
+          </div>
+          <a href="{% url 'attendance_take' entry.school_class.id %}" class="btn btn-primary btn-sm">Take attendance</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <h3>No classes assigned yet</h3>
+        <p>Once you're assigned as a class teacher, your classes will show up here.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Recent attendance</h2>
+    {% if recent_attendance %}
+      {% for record in recent_attendance %}
+        <div class="class-row">
+          <div>
+            <div class="name">{{ record.school_class }}</div>
+            <div class="meta">{{ record.date|date:"D, M j · g:i A" }}</div>
+          </div>
+          <a href="{% url 'attendance_detail' record.id %}" class="btn btn-ghost btn-sm">View</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <h3>Nothing recorded yet</h3>
+        <p>Registers you take will show up here.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock page_content %}

@@ -18,16 +18,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from accounts.views import dashboard, CustomLoginView, CustomSignupView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', TemplateView.as_view(template_name="home.html"), name="home"),
-    path('signin', TemplateView.as_view(
-        template_name='signin_signup.html',
-        extra_context={'mode': 'signin'}
-    ), name='signin'),
-    path('signup', TemplateView.as_view(
-        template_name='signin_signup.html',
-        extra_context={'mode': 'signup'}
-    ), name='signup'),
+    path('signin', CustomLoginView.as_view(), name='signin'),
+    path('signup', CustomSignupView.as_view(), name='signup'),
+    path('dashboard/', dashboard, name='dashboard'),
+    path('students/', include('students.urls')),
+    path('classes/', include('classes.urls')),
+    path('attendance/', include('attendances.urls')),
 ]

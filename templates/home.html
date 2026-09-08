@@ -5,7 +5,7 @@
 {% block content %}
 <nav class="nav">
     <div class="nav-inner">
-      <div class="logo"><span class="logo-mark">R</span>Roster</div>
+      <div class="logo"><span class="logo-mark">L</span>Luminsoft</div>
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
@@ -23,7 +23,7 @@
       <div>
         <span class="eyebrow">Taking roll, simplified</span>
         <h1>Every seat, <em>accounted for</em>.</h1>
-        <p class="hero-sub">Roster turns attendance from a five-minute chore into a five-second glance. Teachers check students in with a tap, and admins get the patterns that matter — automatically.</p>
+        <p class="hero-sub">Luminsoft turns attendance from a five-minute chore into a five-second glance. Teachers check students in with a tap, and admins get the patterns that matter — automatically.</p>
         <div class="hero-actions">
           <a href="#" class="btn btn-primary">Start taking roll</a>
           <a href="#how" class="btn btn-ghost">See how it works</a>
@@ -181,4 +181,53 @@
       </div>
     </div>
   </section>
+
+  <footer>
+    <div class="wrap footer-row">
+      <div class="logo" style="font-size:16px;"><span class="logo-mark" style="width:24px;height:24px;font-size:11px;">L</span>Luminsoft</div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#reports">Reports</a>
+        <a href="#">Privacy</a>
+      </div>
+      <div class="footer-copy">© 2026 Luminsoft · Made for school days</div>
+    </div>
+  </footer>
+
+<script>
+  // Build the roll-call strip
+  const names = ["Ava R.","Liam K.","Noor P.","Kenji T.","Zara M.","Mateo S.","Yuki H.","Priya D.","Omar F.","Elena V."];
+  const absentIdx = [3, 8];
+  const rollEl = document.getElementById('roll');
+  names.forEach((name, i) => {
+    const initials = name.split(' ').map(p => p[0]).join('');
+    const isAbsent = absentIdx.includes(i);
+    const person = document.createElement('div');
+    person.className = 'roll-person';
+    person.style.animationDelay = (i * 70) + 'ms';
+    person.innerHTML = `
+      <div class="avatar">
+        ${initials}
+        <span class="badge ${isAbsent ? 'absent' : 'present'}">
+          ${isAbsent
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'}
+        </span>
+      </div>
+      <span class="roll-name">${name}</span>
+    `;
+    rollEl.appendChild(person);
+  });
+
+  // Build the heatmap (5 weeks x 7 days)
+  const heatmapEl = document.getElementById('heatmap');
+  const levels = [4,4,3,4,2,0,0, 4,4,4,3,4,0,0, 3,2,4,4,4,0,0, 4,4,1,4,4,0,0, 4,3,4,4,3,0,0];
+  levels.forEach(l => {
+    const cell = document.createElement('div');
+    cell.className = 'heat-cell';
+    cell.setAttribute('data-l', l);
+    heatmapEl.appendChild(cell);
+  });
+</script>
 {% endblock content %}

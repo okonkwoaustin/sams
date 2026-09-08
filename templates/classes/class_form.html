@@ -1,0 +1,56 @@
+{% extends "dashboard_base.html" %}
+
+{% block page_title %}Add Class{% endblock page_title %}
+{% block page_heading %}Add a new class{% endblock page_heading %}
+{% block page_subheading %}<p>Set up a class so you can enroll students into it.</p>{% endblock page_subheading %}
+
+{% block page_style %}
+<style>
+  .form-card{ max-width:520px; }
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block; font-size:13px; font-weight:600; color:var(--ink);
+    margin-bottom:6px; font-family:var(--font-mono);
+  }
+  .field input, .field select, .field textarea{
+    width:100%; background:var(--paper); border:1.5px solid var(--paper-line);
+    border-radius:9px; padding:11px 13px; font-family:var(--font-body); font-size:14.5px; color:var(--ink);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--amber-deep); }
+  .field .errorlist{ color:var(--clay); font-size:12.5px; margin:4px 0 0; padding:0; list-style:none; }
+  .form-actions{ display:flex; gap:12px; margin-top:8px; }
+</style>
+{% endblock page_style %}
+
+{% block page_content %}
+
+<div class="card form-card">
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="{{ form.name.id_for_label }}">Grade / class</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.nickname.id_for_label }}">Nickname <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
+      {{ form.nickname }}
+      {{ form.nickname.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.description.id_for_label }}">Description <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Add class</button>
+      <a href="{% url 'class_list' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock page_content %}

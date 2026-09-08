@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign in or create an account — Roster</title>
+<title>Sign in or create an account — Luminsoft</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+{% block extra_head %}
 <style>
   :root{
     --chalk: #1E332B;
@@ -295,6 +296,15 @@
   }
   .role-note b{color:var(--ink);}
 
+  .form-alert{
+    margin-bottom:18px;padding:12px 14px;border-radius:9px;
+    background:rgba(193,84,58,0.1);border:1px solid rgba(193,84,58,0.35);
+    color:var(--clay);font-size:13.5px;line-height:1.5;
+  }
+  .field .errorlist{
+    list-style:none;margin:6px 0 0;padding:0;color:var(--clay);font-size:12.5px;
+  }
+
   /* view switching for the two forms */
   [data-view]{display:none;}
   [data-view].is-active{display:block;}
@@ -309,13 +319,14 @@
     .role-select{grid-template-columns:1fr 1fr 1fr;}
   }
 </style>
+{% endblock extra_head %}
 </head>
 <body>
 
   <div class="auth-wrap">
 
     <aside class="auth-aside">
-      <a href="{% url 'home' %}" class="logo"><span class="logo-mark">R</span>Roster</a>
+      <a href="{% url 'home' %}" class="logo"><span class="logo-mark">L</span>Luminsoft</a>
 
       <!-- Sign-in aside content -->
       <div class="aside-copy {% if mode == 'signin' %}is-active{% endif %}" data-aside-mode="signin">
@@ -377,10 +388,15 @@
             <p>New to Roster? <a data-switch-to="signup">Create a free account</a></p>
           </div>
 
-          <form id="signinForm">
+          <form id="signinForm" method="post" action="{% url 'signin' %}">
+            {% csrf_token %}
+            {% if mode == 'signin' and form.non_field_errors %}
+              <div class="form-alert">{{ form.non_field_errors }}</div>
+            {% endif %}
             <div class="field">
-              <label for="si-email">Email address</label>
-              <input type="email" id="si-email" name="email" placeholder="you@yourschool.edu" required autocomplete="email">
+              <label for="si-login">Email address</label>
+              <input type="email" id="si-login" name="login" placeholder="you@yourschool.edu" required autocomplete="email">
+              {{ form.login.errors }}
             </div>
 
             <div class="field password-field">
@@ -389,6 +405,7 @@
               <button type="button" class="toggle-pw" data-toggle-target="si-password" aria-label="Show password">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
+              {{ form.password.errors }}
             </div>
 
             <div class="field-row">
@@ -451,35 +468,47 @@
             </div>
           </fieldset> -->
 
-          <form id="signupForm">
+          <form id="signupForm" method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+            {% if mode == 'signup' and form.non_field_errors %}
+              <div class="form-alert">{{ form.non_field_errors }}</div>
+            {% endif %}
             <div class="field-pair">
               <div class="field">
                 <label for="su-fname">First name</label>
-                <input type="text" id="su-fname" name="fname" placeholder="Amara" required autocomplete="given-name">
+                <input type="text" id="su-fname" name="first_name" placeholder="Amara" required autocomplete="given-name">
+                {{ form.first_name.errors }}
               </div>
               <div class="field">
                 <label for="su-lname">Last name</label>
-                <input type="text" id="su-lname" name="lname" placeholder="Okonkwo" required autocomplete="family-name">
+                <input type="text" id="su-lname" name="last_name" placeholder="Okonkwo" required autocomplete="family-name">
+                {{ form.last_name.errors }}
               </div>
             </div>
 
             <div class="field">
               <label for="su-email">School email</label>
               <input type="email" id="su-email" name="email" placeholder="you@yourschool.edu" required autocomplete="email">
-            </div>
-
-            <div class="field">
-              <label for="su-school">School or district</label>
-              <input type="text" id="su-school" name="school" placeholder="Lakeside Middle School" required autocomplete="organization">
+              {{ form.email.errors }}
             </div>
 
             <div class="field password-field">
               <label for="su-password">Password</label>
-              <input type="password" id="su-password" name="password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
+              <input type="password" id="su-password" name="password1" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
               <button type="button" class="toggle-pw" data-toggle-target="su-password" aria-label="Show password">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
+              {{ form.password1.errors }}
               <p class="hint">Use 8+ characters with a mix of letters and numbers.</p>
+            </div>
+
+            <div class="field password-field">
+              <label for="su-password2">Confirm password</label>
+              <input type="password" id="su-password2" name="password2" placeholder="Re-enter your password" required minlength="8" autocomplete="new-password">
+              <button type="button" class="toggle-pw" data-toggle-target="su-password2" aria-label="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              {{ form.password2.errors }}
             </div>
 
             <label class="terms">
@@ -545,16 +574,7 @@
     });
   });
 
-  document.getElementById('signinForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    // Hook up to your auth endpoint here.
-  });
-  document.getElementById('signupForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    // Hook up to your account-creation endpoint here.
-  });
-
-  // set initial aside state
+  // set initial aside/tab state to match what the server already rendered
   setMode('{{ mode|default:"signin" }}');
 </script>
 

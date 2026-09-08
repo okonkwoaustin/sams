@@ -2,7 +2,7 @@ from django.db import models
 from classes.models import SchoolClass
 from school_sessions.models import Term
 from django.conf import settings
-from students.models import Student, StudentEnrollment
+from students.models import StudentEnrollment
 
 
 class Attendance(models.Model):
